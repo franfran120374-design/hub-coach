@@ -1,0 +1,12 @@
+Pose ici tes fichiers audio (.mp3, .m4a, .ogg), puis liste-les dans
+src/data/playlists.json, par exemple :
+
+  "energie": {
+    "nom": "Energie",
+    "source": "locale",
+    "pistes": ["mon-morceau.mp3", "un-autre.mp3"],
+    "url": ""
+  }
+
+Les fichiers audio ne sont pas suivis par Git (voir .gitignore) :
+ils restent sur ta machine.

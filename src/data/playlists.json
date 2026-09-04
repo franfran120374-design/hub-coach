@@ -1,0 +1,20 @@
+{
+  "reveil": {
+    "nom": "Réveil",
+    "source": "locale",
+    "pistes": [],
+    "url": ""
+  },
+  "energie": {
+    "nom": "Énergie",
+    "source": "locale",
+    "pistes": [],
+    "url": ""
+  },
+  "nuit": {
+    "nom": "Nuit",
+    "source": "locale",
+    "pistes": [],
+    "url": ""
+  }
+}
