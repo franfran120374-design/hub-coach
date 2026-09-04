@@ -152,11 +152,50 @@ Les 400 dernières entrées sont conservées, en local uniquement.
 
 ---
 
+## Ce que le coach remarque tout seul
+
+Le coach relit ton historique et ton journal. Quand un motif se répète, il te le dit —
+et il te propose une adaptation applicable en un clic. Une observation sans proposition,
+c'est un reproche : il n'en fait pas.
+
+Quatre motifs sont surveillés :
+
+| Motif | Ce qui déclenche | Ce qu'il propose |
+|---|---|---|
+| Trop dur | trois séances de suite marquées « trop dur » | semaine allégée : un cran de moins et les exercices secondaires retirés pendant 7 jours |
+| Jour faible | un même jour de la semaine raté 3 fois sur les 4 dernières, alors que le reste tient | un horaire propre à ce jour (coucher), ou retirer ce jour du programme (renforcement) |
+| Reports en cascade | plus de 2 reports en moyenne sur les 5 dernières séances | décaler l'horaire de 30 minutes : l'heure ne correspond pas à ta journée réelle |
+| Trop facile | trois séances de suite marquées « trop facile » | doubler le pas de progression |
+
+Chaque proposition a deux réponses : **Appliquer**, ou **Laisser comme ça** — qui met le
+signal de côté pour deux semaines. Deux signaux maximum sont affichés à la fois, et une
+routine n'en produit jamais deux en même temps : deux conseils contradictoires le même jour,
+c'est du bruit.
+
+**Les garde-fous.** Un « jour faible » ne se déclenche que si la routine a au moins six
+séances faites, un taux de réussite global supérieur à 40 %, et si les autres jours tiennent
+à plus de 60 %. Sans ça, une routine jamais lancée signalerait tous les jours de la semaine
+comme problématiques.
+
+### Ce que les ajustements modifient
+
+`routines.json` reste ta référence, les ajustements se posent par-dessus dans
+`coach.ajustements` : décalage d'horaire, horaire particulier pour un jour donné,
+jour retiré, semaine allégée en cours. La carte « Où tu en es » affiche ce qui est
+actif sous chaque routine. Pour repartir de zéro sur une routine, la fonction
+`reinitialiserAjustements(routineId)` de `src/core/ajustements.js` remet le programme d'origine.
+
+Les exercices retirés en semaine allégée sont ceux marqués `"allegeable": true`
+dans `routines.json` — aujourd'hui les fentes et le pont fessier. À toi de choisir
+lesquels sont secondaires.
+
+---
+
 ## Où vivent tes données
 
-Tout est stocké en local dans le navigateur ou l'application (`localStorage`), sous cinq clés :
-`coach.historique`, `coach.reports`, `coach.reglages`, `coach.progression`, `coach.journal`.
-Rien ne sort de ta machine.
+Tout est stocké en local dans le navigateur ou l'application (`localStorage`), sous sept clés :
+`coach.historique`, `coach.reports`, `coach.reglages`, `coach.progression`, `coach.journal`,
+`coach.ajustements`, `coach.signauxIgnores`. Rien ne sort de ta machine.
 
 ---
 
@@ -167,6 +206,8 @@ electron/main.cjs        fenêtre, notifications système, prise d'écran au niv
 electron/preload.cjs     pont sécurisé vers l'interface
 src/core/scheduler.js    le cerveau : décide de l'état de chaque routine
 src/core/progression.js  niveaux, doses du jour, heure de coucher effective
+src/core/ajustements.js  décalages, jours retirés, semaines allégées
+src/core/signaux.js      détection de motifs et propositions d'adaptation
 src/core/storage.js      historique, séries, reports, réglages, progression, journal
 src/core/sound.js        bips et alarmes générés (aucun fichier audio requis)
 src/core/music.js        couche musique, une source par type de playlist

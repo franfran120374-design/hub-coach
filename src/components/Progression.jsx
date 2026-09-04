@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { etatProgression, dose, prochainPalier, heureEffective, cibleAtteinte } from '../core/progression.js'
+import { ajustementsActifs } from '../core/ajustements.js'
 
 export default function Progression({ routines, version }) {
   const lignes = useMemo(
@@ -9,7 +10,8 @@ export default function Progression({ routines, version }) {
         .map((routine) => ({
           routine,
           etat: etatProgression(routine.id),
-          palier: prochainPalier(routine)
+          palier: prochainPalier(routine),
+          reglages: ajustementsActifs(routine)
         })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [routines, version]
@@ -20,7 +22,7 @@ export default function Progression({ routines, version }) {
   return (
     <section className="progression">
       <h2 className="titre-section">Où tu en es</h2>
-      {lignes.map(({ routine, etat, palier }) => (
+      {lignes.map(({ routine, etat, palier, reglages }) => (
         <article key={routine.id} className="progression-bloc">
           <div className="progression-ligne">
             <h3>{routine.nom}</h3>
@@ -45,7 +47,7 @@ export default function Progression({ routines, version }) {
                 {routine.exercices
                   .filter((e) => e.progression)
                   .map((exercice) => {
-                    const d = dose(exercice, etat.niveau)
+                    const d = dose(exercice, etat.niveau, etat.multiplicateurPas || 1)
                     return (
                       <li key={exercice.nom}>
                         <span>{exercice.nom}</span>
@@ -56,6 +58,9 @@ export default function Progression({ routines, version }) {
               </ul>
               <p className="progression-legende">{palier && palier.texte}</p>
             </>
+          )}
+          {reglages.length > 0 && (
+            <p className="progression-reglages">Ajusté : {reglages.join(' · ')}</p>
           )}
         </article>
       ))}

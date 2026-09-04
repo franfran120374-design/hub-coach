@@ -844,3 +844,60 @@ input {
   font-weight: 500;
   color: var(--texte-doux);
 }
+
+/* ---------- Signaux : ce que le coach a remarque ---------- */
+
+.signal {
+  background: var(--surface);
+  border: 1px solid var(--trait);
+  border-left: 3px solid var(--texte-doux);
+  border-radius: var(--rayon);
+  padding: 20px 22px;
+  margin-bottom: 14px;
+  max-width: var(--colonne);
+}
+
+.signal-attention {
+  border-left-color: var(--action);
+}
+
+.signal-bon {
+  border-left-color: var(--calme);
+}
+
+.signal-titre {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 600;
+}
+
+.signal-constat {
+  margin: 8px 0 0;
+  color: var(--texte-doux);
+}
+
+.signal-proposition {
+  margin: 12px 0 0;
+  padding-left: 14px;
+  border-left: 2px solid var(--trait);
+}
+
+.signal-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding-top: 18px;
+}
+
+.etiquette-allegee {
+  color: var(--calme);
+  border-color: var(--calme);
+}
+
+.progression-reglages {
+  margin: 10px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--trait);
+  font-size: 13px;
+  color: var(--texte-doux);
+}

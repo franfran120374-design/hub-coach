@@ -13,7 +13,7 @@ import { lireProgression, ecrireProgression } from './storage.js'
 
 export const SEUIL_JUSTE = 3 // nombre de seances "juste" avant de monter d'un cran
 
-const ETAT_VIDE = { niveau: 0, compteurJuste: 0, seancesDepuisPas: 0 }
+const ETAT_VIDE = { niveau: 0, compteurJuste: 0, seancesDepuisPas: 0, multiplicateurPas: 1 }
 
 export function etatProgression(routineId) {
   const stocke = lireProgression()[routineId]
@@ -22,23 +22,23 @@ export function etatProgression(routineId) {
 
 // --- Doses
 
-export function dose(exercice, niveau) {
+export function dose(exercice, niveau, multiplicateur = 1) {
   if (!exercice.progression) return null
   const { depart, pas, max, unite } = exercice.progression
-  const valeur = Math.min(max ?? Infinity, depart + pas * niveau)
+  const valeur = Math.min(max ?? Infinity, depart + pas * multiplicateur * niveau)
   return { valeur, unite, texte: `${valeur} ${unite}` }
 }
 
-export function dureeExercice(exercice, niveau) {
+export function dureeExercice(exercice, niveau, multiplicateur = 1) {
   if (exercice.progression && exercice.progression.cible === 'duree') {
-    return dose(exercice, niveau).valeur
+    return dose(exercice, niveau, multiplicateur).valeur
   }
   return exercice.duree || 30
 }
 
-export function auMaximum(exercice, niveau) {
+export function auMaximum(exercice, niveau, multiplicateur = 1) {
   if (!exercice.progression || exercice.progression.max === undefined) return false
-  return dose(exercice, niveau).valeur >= exercice.progression.max
+  return dose(exercice, niveau, multiplicateur).valeur >= exercice.progression.max
 }
 
 // --- Heure de coucher effective

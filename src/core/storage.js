@@ -8,6 +8,8 @@ const CLE_REPORTS = 'coach.reports'
 const CLE_REGLAGES = 'coach.reglages'
 const CLE_PROGRESSION = 'coach.progression'
 const CLE_JOURNAL = 'coach.journal'
+const CLE_AJUSTEMENTS = 'coach.ajustements'
+const CLE_SIGNAUX_IGNORES = 'coach.signauxIgnores'
 const TAILLE_JOURNAL = 400
 
 const REGLAGES_DEFAUT = {
@@ -174,8 +176,47 @@ export function journalDeRoutine(routineId, limite = 10) {
   return lireJournal().filter((e) => e.routineId === routineId).slice(0, limite)
 }
 
+// --- Ajustements : ce que le coach a modifie apres tes reponses aux signaux
+
+export function lireAjustements() {
+  return lire(CLE_AJUSTEMENTS, {})
+}
+
+export function ecrireAjustement(routineId, etat) {
+  const tout = lireAjustements()
+  tout[routineId] = etat
+  ecrire(CLE_AJUSTEMENTS, tout)
+  return etat
+}
+
+// --- Signaux mis de cote
+
+export function lireSignauxIgnores() {
+  return lire(CLE_SIGNAUX_IGNORES, {})
+}
+
+export function ignorerSignal(cle, jours = 14) {
+  const tout = lireSignauxIgnores()
+  tout[cle] = Date.now() + jours * 24 * 60 * 60 * 1000
+  ecrire(CLE_SIGNAUX_IGNORES, tout)
+  return tout
+}
+
+export function signalIgnore(cle) {
+  const tout = lireSignauxIgnores()
+  return Boolean(tout[cle] && tout[cle] > Date.now())
+}
+
 export function toutEffacer() {
-  ;[CLE_HISTORIQUE, CLE_REPORTS, CLE_REGLAGES, CLE_PROGRESSION, CLE_JOURNAL].forEach((cle) => {
+  ;[
+    CLE_HISTORIQUE,
+    CLE_REPORTS,
+    CLE_REGLAGES,
+    CLE_PROGRESSION,
+    CLE_JOURNAL,
+    CLE_AJUSTEMENTS,
+    CLE_SIGNAUX_IGNORES
+  ].forEach((cle) => {
     try {
       localStorage.removeItem(cle)
     } catch {

@@ -3,14 +3,18 @@ import { formatChrono } from '../core/temps.js'
 import { bipDecompte, bipTransition, bipFin } from '../core/sound.js'
 import { jouer, arreter as arreterMusique, playlistDisponible, nomPlaylist } from '../core/music.js'
 import { etatProgression, dose, dureeExercice, auMaximum } from '../core/progression.js'
+import { exercicesDuJour, allegementActif, joursRestantsAllegement } from '../core/ajustements.js'
 
 export default function Seance({ routine, reglages, onTerminer, onAbandonner }) {
   const checklist = routine.mode === 'checklist'
-  const exercices = routine.exercices || []
-  const niveau = useMemo(() => etatProgression(routine.id).niveau, [routine.id])
+  const exercices = useMemo(() => exercicesDuJour(routine) || [], [routine])
+  const etat = useMemo(() => etatProgression(routine.id), [routine.id])
+  const niveau = etat.niveau
+  const multiplicateur = etat.multiplicateurPas || 1
+  const allege = allegementActif(routine.id)
 
   const [index, setIndex] = useState(0)
-  const [restant, setRestant] = useState(() => (checklist ? 0 : dureeExercice(exercices[0], niveau)))
+  const [restant, setRestant] = useState(() => (checklist ? 0 : dureeExercice(exercices[0], niveau, multiplicateur)))
   const [enPause, setEnPause] = useState(false)
   const [coches, setCoches] = useState(() => exercices.map(() => false))
 
@@ -28,9 +32,9 @@ export default function Seance({ routine, reglages, onTerminer, onAbandonner }) 
     (nouvelIndex) => {
       const borne = Math.max(0, Math.min(exercices.length - 1, nouvelIndex))
       setIndex(borne)
-      setRestant(dureeExercice(exercices[borne], niveau))
+      setRestant(dureeExercice(exercices[borne], niveau, multiplicateur))
     },
-    [exercices, niveau]
+    [exercices, niveau, multiplicateur]
   )
 
   const suivant = useCallback(() => {
@@ -57,8 +61,8 @@ export default function Seance({ routine, reglages, onTerminer, onAbandonner }) 
   }, [restant])
 
   const exercice = exercices[index]
-  const dosage = checklist ? null : dose(exercice, niveau)
-  const dureeCourante = checklist ? 0 : dureeExercice(exercice, niveau)
+  const dosage = checklist ? null : dose(exercice, niveau, multiplicateur)
+  const dureeCourante = checklist ? 0 : dureeExercice(exercice, niveau, multiplicateur)
   const progression = checklist
     ? coches.filter(Boolean).length / Math.max(1, exercices.length)
     : (index + (dureeCourante ? 1 - restant / dureeCourante : 0)) / Math.max(1, exercices.length)
@@ -79,7 +83,7 @@ export default function Seance({ routine, reglages, onTerminer, onAbandonner }) 
 
         <ul className="checklist">
           {exercices.map((etape, i) => (
-            <li key={etape.nom} className={coches[i] ? 'coche' : ''}>
+            <li key={`${etape.nom}-${i}`} className={coches[i] ? "coche" : ""}>
               <label>
                 <input
                   type="checkbox"
@@ -121,6 +125,11 @@ export default function Seance({ routine, reglages, onTerminer, onAbandonner }) 
         <h1>{routine.nom}</h1>
         <div className="seance-entete-droite">
           {niveau > 0 && <span className="etiquette">Niveau {niveau}</span>}
+          {allege && (
+            <span className="etiquette etiquette-allegee">
+              Allégée · {joursRestantsAllegement(routine.id)} j
+            </span>
+          )}
           {musique && <span className="etiquette">Musique : {nomPlaylist(musique)}</span>}
           <button type="button" className="bouton bouton-fin" onClick={onAbandonner}>
             Sortir
@@ -139,7 +148,9 @@ export default function Seance({ routine, reglages, onTerminer, onAbandonner }) 
         {dosage && dosage.unite !== 'secondes' && (
           <p className="minuteur-dose">
             {dosage.texte}
-            {auMaximum(exercice, niveau) && <span className="minuteur-plafond"> · plafond atteint</span>}
+            {auMaximum(exercice, niveau, multiplicateur) && (
+              <span className="minuteur-plafond"> · plafond atteint</span>
+            )}
           </p>
         )}
 

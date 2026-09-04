@@ -14,16 +14,16 @@
 
 import { minutesDepuisMinuit, heureEnMinutes } from './temps.js'
 import { estFaite, reportActif } from './storage.js'
-import { heureEffective } from './progression.js'
+import { heureDuJour, joursActifs } from './ajustements.js'
 
 const LIMITE_ABANDON_MIN = 240 // au-dela de 4 h de retard, on arrete d'insister
 
-export function heureCible(routine) {
-  return heureEffective(routine)
+export function heureCible(routine, maintenant = new Date()) {
+  return heureDuJour(routine, maintenant)
 }
 
 export function retardEnMinutes(routine, maintenant = new Date()) {
-  const cible = heureEnMinutes(heureCible(routine))
+  const cible = heureEnMinutes(heureCible(routine, maintenant))
   let retard = minutesDepuisMinuit(maintenant) - cible
   // Routine du soir consultee apres minuit : on rattache au jour precedent.
   if (retard < -720) retard += 1440
@@ -31,16 +31,17 @@ export function retardEnMinutes(routine, maintenant = new Date()) {
 }
 
 function programmeeAujourdhui(routine, maintenant, retard) {
-  const jours = routine.jours || [0, 1, 2, 3, 4, 5, 6]
+  const jours = joursActifs(routine)
   const jourCourant = maintenant.getDay()
-  const debordeMinuit = minutesDepuisMinuit(maintenant) < heureEnMinutes(heureCible(routine)) && retard >= 0
+  const debordeMinuit =
+    minutesDepuisMinuit(maintenant) < heureEnMinutes(heureCible(routine, maintenant)) && retard >= 0
   const jourDeReference = debordeMinuit ? (jourCourant + 6) % 7 : jourCourant
   return jours.includes(jourDeReference)
 }
 
 export function evaluerRoutine(routine, maintenant = new Date()) {
   const retard = retardEnMinutes(routine, maintenant)
-  const heure = heureCible(routine)
+  const heure = heureCible(routine, maintenant)
 
   if (!programmeeAujourdhui(routine, maintenant, retard)) {
     return { routine, heure, etat: 'inactive', retard, niveau: 0 }

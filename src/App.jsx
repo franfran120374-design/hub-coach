@@ -7,11 +7,14 @@ import {
   lireReglages,
   ecrireReglages,
   nombreReports,
-  ajouterAuJournal
+  ajouterAuJournal,
+  ignorerSignal
 } from './core/storage.js'
 import { appliquerBilan } from './core/progression.js'
+import { appliquerAjustement } from './core/ajustements.js'
 import { activerAudio, audioPret, demarrerBoucleAlerte, arreterBoucleAlerte } from './core/sound.js'
 import { arreter as arreterMusique, reglerVolume } from './core/music.js'
+import Signaux from './components/Signaux.jsx'
 import Journee from './components/Journee.jsx'
 import Seance from './components/Seance.jsx'
 import Bilan from './components/Bilan.jsx'
@@ -136,6 +139,22 @@ export default function App() {
     setVersion((v) => v + 1)
   }, [])
 
+  const appliquerSignal = useCallback((signal) => {
+    appliquerAjustement(signal.action)
+    ajouterAuJournal({
+      routineId: signal.routineId,
+      ressenti: null,
+      note: '',
+      changement: `Ajustement accepté : ${signal.titre.toLowerCase()}`
+    })
+    setVersion((v) => v + 1)
+  }, [])
+
+  const ecarterSignal = useCallback((signal) => {
+    ignorerSignal(signal.cle, 14)
+    setVersion((v) => v + 1)
+  }, [])
+
   const majReglages = useCallback((partiel) => {
     setReglages(ecrireReglages(partiel))
   }, [])
@@ -215,6 +234,12 @@ export default function App() {
 
       <main className="colonnes">
         <div className="colonne-gauche">
+          <Signaux
+            routines={routines}
+            version={version}
+            onAppliquer={appliquerSignal}
+            onIgnorer={ecarterSignal}
+          />
           <Journee evaluations={evaluations} onDemarrer={demarrer} onReporter={reporter} />
           <Journal routines={routines} version={version} />
         </div>
