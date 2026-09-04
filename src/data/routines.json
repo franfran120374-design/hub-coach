@@ -12,7 +12,7 @@
     "exercices": [
       { "nom": "Respiration debout", "duree": 60, "consigne": "Debout, pieds écartés. Inspire 4 temps, expire 6 temps. Épaules relâchées." },
       { "nom": "Chat / vache", "duree": 60, "consigne": "À quatre pattes. Dos rond à l'expiration, dos creusé à l'inspiration. Lent." },
-      { "nom": "Étirement ischio debout", "duree": 45, "consigne": "Une jambe tendue devant, penche le buste. Dos droit. Puis change de côté." },
+      { "nom": "Étirement ischio debout", "duree": 45, "consigne": "Une jambe tendue devant, penche le buste. Dos droit." },
       { "nom": "Étirement ischio, autre côté", "duree": 45, "consigne": "Même chose de l'autre côté." },
       { "nom": "Fente basse hanche", "duree": 45, "consigne": "Genou arrière au sol, bassin qui avance. Tu dois sentir l'avant de la cuisse arrière." },
       { "nom": "Fente basse, autre côté", "duree": 45, "consigne": "Même chose de l'autre côté." },
@@ -23,7 +23,7 @@
   {
     "id": "muscu",
     "nom": "Renforcement",
-    "resume": "Séance courte au poids du corps. Qualité du mouvement avant le nombre de répétitions.",
+    "resume": "Séance courte au poids du corps. La charge monte quand tu la trouves trop facile.",
     "heure": "18:30",
     "jours": [1, 3, 5],
     "mode": "timer",
@@ -32,15 +32,39 @@
     "playlist": "energie",
     "exercices": [
       { "nom": "Échauffement", "duree": 120, "consigne": "Cercles de bras, montées de genoux, rotations de hanches. Sans forcer." },
-      { "nom": "Squats", "duree": 45, "consigne": "12 répétitions. Poids dans les talons, genoux dans l'axe des pieds." },
+      {
+        "nom": "Squats",
+        "duree": 60,
+        "consigne": "Poids dans les talons, genoux dans l'axe des pieds, descente contrôlée.",
+        "progression": { "unite": "répétitions", "depart": 12, "pas": 2, "max": 30 }
+      },
       { "nom": "Récupération", "duree": 45, "consigne": "Respire. Marche un peu." },
-      { "nom": "Pompes (genoux ou inclinées)", "duree": 45, "consigne": "8 à 10 répétitions. Corps gainé, coudes près du corps." },
+      {
+        "nom": "Pompes (genoux ou inclinées)",
+        "duree": 60,
+        "consigne": "Corps gainé, coudes près du corps. Sur les genoux ou mains surélevées si besoin.",
+        "progression": { "unite": "répétitions", "depart": 8, "pas": 1, "max": 20 }
+      },
       { "nom": "Récupération", "duree": 45, "consigne": "Respire." },
-      { "nom": "Fentes alternées", "duree": 45, "consigne": "10 par jambe. Genou avant au-dessus de la cheville." },
+      {
+        "nom": "Fentes alternées",
+        "duree": 60,
+        "consigne": "Genou avant au-dessus de la cheville, buste droit.",
+        "progression": { "unite": "répétitions par jambe", "depart": 10, "pas": 2, "max": 24 }
+      },
       { "nom": "Récupération", "duree": 45, "consigne": "Respire." },
-      { "nom": "Gainage ventral", "duree": 40, "consigne": "Coudes sous les épaules, fessiers serrés, pas de cambrure. Descends sur les genoux si le dos creuse." },
+      {
+        "nom": "Gainage ventral",
+        "consigne": "Coudes sous les épaules, fessiers serrés, pas de cambrure. Descends sur les genoux si le dos creuse.",
+        "progression": { "cible": "duree", "unite": "secondes", "depart": 40, "pas": 5, "max": 120 }
+      },
       { "nom": "Récupération", "duree": 45, "consigne": "Respire." },
-      { "nom": "Pont fessier", "duree": 45, "consigne": "15 répétitions. Monte le bassin, serre en haut, redescends sans poser." },
+      {
+        "nom": "Pont fessier",
+        "duree": 60,
+        "consigne": "Monte le bassin, serre en haut, redescends sans poser.",
+        "progression": { "unite": "répétitions", "depart": 15, "pas": 3, "max": 36 }
+      },
       { "nom": "Retour au calme", "duree": 120, "consigne": "Étirements doux des jambes et du dos, respiration lente." }
     ]
   },
@@ -54,6 +78,7 @@
     "toleranceMin": 10,
     "escaladeMin": [0, 8, 15],
     "playlist": "nuit",
+    "progressionHeure": { "cibleFinale": "22:15", "pasMin": 5, "seancesParPas": 4 },
     "exercices": [
       { "nom": "Fermer les onglets en cours", "consigne": "Note où tu en es sur un papier, ça reprend plus vite demain." },
       { "nom": "Poser le téléphone hors de la chambre", "consigne": "Chargeur dans une autre pièce. Non négociable." },

@@ -14,11 +14,16 @@
 
 import { minutesDepuisMinuit, heureEnMinutes } from './temps.js'
 import { estFaite, reportActif } from './storage.js'
+import { heureEffective } from './progression.js'
 
 const LIMITE_ABANDON_MIN = 240 // au-dela de 4 h de retard, on arrete d'insister
 
+export function heureCible(routine) {
+  return heureEffective(routine)
+}
+
 export function retardEnMinutes(routine, maintenant = new Date()) {
-  const cible = heureEnMinutes(routine.heure)
+  const cible = heureEnMinutes(heureCible(routine))
   let retard = minutesDepuisMinuit(maintenant) - cible
   // Routine du soir consultee apres minuit : on rattache au jour precedent.
   if (retard < -720) retard += 1440
@@ -28,30 +33,32 @@ export function retardEnMinutes(routine, maintenant = new Date()) {
 function programmeeAujourdhui(routine, maintenant, retard) {
   const jours = routine.jours || [0, 1, 2, 3, 4, 5, 6]
   const jourCourant = maintenant.getDay()
-  const debordeMinuit = minutesDepuisMinuit(maintenant) < heureEnMinutes(routine.heure) && retard >= 0
+  const debordeMinuit = minutesDepuisMinuit(maintenant) < heureEnMinutes(heureCible(routine)) && retard >= 0
   const jourDeReference = debordeMinuit ? (jourCourant + 6) % 7 : jourCourant
   return jours.includes(jourDeReference)
 }
 
 export function evaluerRoutine(routine, maintenant = new Date()) {
   const retard = retardEnMinutes(routine, maintenant)
+  const heure = heureCible(routine)
 
   if (!programmeeAujourdhui(routine, maintenant, retard)) {
-    return { routine, etat: 'inactive', retard, niveau: 0 }
+    return { routine, heure, etat: 'inactive', retard, niveau: 0 }
   }
 
   if (estFaite(routine.id)) {
-    return { routine, etat: 'faite', retard, niveau: 0 }
+    return { routine, heure, etat: 'faite', retard, niveau: 0 }
   }
 
   if (retard < 0) {
-    return { routine, etat: 'a_venir', retard, niveau: 0, dansMinutes: -retard }
+    return { routine, heure, etat: 'a_venir', retard, niveau: 0, dansMinutes: -retard }
   }
 
   const report = reportActif(routine.id)
   if (report && !report.expire) {
     return {
       routine,
+      heure,
       etat: 'reportee',
       retard,
       niveau: 0,
@@ -62,11 +69,11 @@ export function evaluerRoutine(routine, maintenant = new Date()) {
 
   const tolerance = routine.toleranceMin ?? 15
   if (retard < tolerance) {
-    return { routine, etat: 'attente', retard, niveau: 0, reports: report ? report.nombre : 0 }
+    return { routine, heure, etat: 'attente', retard, niveau: 0, reports: report ? report.nombre : 0 }
   }
 
   if (retard > LIMITE_ABANDON_MIN) {
-    return { routine, etat: 'ratee', retard, niveau: 0 }
+    return { routine, heure, etat: 'ratee', retard, niveau: 0 }
   }
 
   const depuisTolerance = retard - tolerance
@@ -78,6 +85,7 @@ export function evaluerRoutine(routine, maintenant = new Date()) {
 
   return {
     routine,
+    heure,
     etat: `niveau${niveau}`,
     niveau,
     retard,

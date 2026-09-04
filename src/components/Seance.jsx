@@ -2,13 +2,15 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { formatChrono } from '../core/temps.js'
 import { bipDecompte, bipTransition, bipFin } from '../core/sound.js'
 import { jouer, arreter as arreterMusique, playlistDisponible, nomPlaylist } from '../core/music.js'
+import { etatProgression, dose, dureeExercice, auMaximum } from '../core/progression.js'
 
 export default function Seance({ routine, reglages, onTerminer, onAbandonner }) {
   const checklist = routine.mode === 'checklist'
   const exercices = routine.exercices || []
+  const niveau = useMemo(() => etatProgression(routine.id).niveau, [routine.id])
 
   const [index, setIndex] = useState(0)
-  const [restant, setRestant] = useState(() => (checklist ? 0 : exercices[0]?.duree || 30))
+  const [restant, setRestant] = useState(() => (checklist ? 0 : dureeExercice(exercices[0], niveau)))
   const [enPause, setEnPause] = useState(false)
   const [coches, setCoches] = useState(() => exercices.map(() => false))
 
@@ -26,9 +28,9 @@ export default function Seance({ routine, reglages, onTerminer, onAbandonner }) 
     (nouvelIndex) => {
       const borne = Math.max(0, Math.min(exercices.length - 1, nouvelIndex))
       setIndex(borne)
-      setRestant(exercices[borne]?.duree || 30)
+      setRestant(dureeExercice(exercices[borne], niveau))
     },
-    [exercices]
+    [exercices, niveau]
   )
 
   const suivant = useCallback(() => {
@@ -55,9 +57,11 @@ export default function Seance({ routine, reglages, onTerminer, onAbandonner }) 
   }, [restant])
 
   const exercice = exercices[index]
+  const dosage = checklist ? null : dose(exercice, niveau)
+  const dureeCourante = checklist ? 0 : dureeExercice(exercice, niveau)
   const progression = checklist
     ? coches.filter(Boolean).length / Math.max(1, exercices.length)
-    : (index + (exercice?.duree ? 1 - restant / exercice.duree : 0)) / Math.max(1, exercices.length)
+    : (index + (dureeCourante ? 1 - restant / dureeCourante : 0)) / Math.max(1, exercices.length)
 
   const toutCoche = coches.every(Boolean)
 
@@ -116,6 +120,7 @@ export default function Seance({ routine, reglages, onTerminer, onAbandonner }) 
       <header className="seance-entete">
         <h1>{routine.nom}</h1>
         <div className="seance-entete-droite">
+          {niveau > 0 && <span className="etiquette">Niveau {niveau}</span>}
           {musique && <span className="etiquette">Musique : {nomPlaylist(musique)}</span>}
           <button type="button" className="bouton bouton-fin" onClick={onAbandonner}>
             Sortir
@@ -130,10 +135,21 @@ export default function Seance({ routine, reglages, onTerminer, onAbandonner }) 
           Étape {index + 1} sur {exercices.length}
         </p>
         <h2 className="minuteur-nom">{exercice?.nom}</h2>
+
+        {dosage && dosage.unite !== 'secondes' && (
+          <p className="minuteur-dose">
+            {dosage.texte}
+            {auMaximum(exercice, niveau) && <span className="minuteur-plafond"> · plafond atteint</span>}
+          </p>
+        )}
+
         <div className={`minuteur-chiffres ${restant <= 3 ? 'fin-proche' : ''}`}>
           {formatChrono(restant)}
         </div>
         <p className="minuteur-consigne">{exercice?.consigne}</p>
+        {dosage && dosage.unite !== 'secondes' && (
+          <p className="minuteur-apres">Fini avant la fin du temps ? Passe à la suite.</p>
+        )}
         {exercices[index + 1] && (
           <p className="minuteur-apres">Ensuite : {exercices[index + 1].nom}</p>
         )}

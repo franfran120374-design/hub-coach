@@ -105,10 +105,58 @@ Une playlist sans piste ni URL est simplement ignorée : la séance se déroule 
 
 ---
 
+## Progression et mémoire
+
+À la fin de chaque séance, le coach demande une seule chose : c'était **trop facile**, **juste**, ou **trop dur**.
+Plus une note libre facultative. C'est tout ce dont il a besoin pour ajuster.
+
+### Le renforcement monte tout seul
+
+Chaque exercice concerné a un palier dans `routines.json` :
+
+```json
+"progression": { "unite": "répétitions", "depart": 12, "pas": 2, "max": 30 }
+```
+
+- **trop facile** → un cran de plus dès la séance suivante
+- **juste** → trois séances de suite au bon rythme, puis un cran de plus
+- **trop dur** → un cran de moins
+
+Le gainage progresse en secondes : c'est le minuteur lui-même qui s'allonge
+(`"cible": "duree"` dans son palier). Les autres exercices affichent le nombre de
+répétitions du jour au-dessus du chrono. Le `max` empêche l'escalade sans fin.
+
+### L'heure de coucher recule
+
+C'est la mécanique la plus utile pour dormir. Le coucher ne progresse pas au ressenti mais
+à la régularité :
+
+```json
+"progressionHeure": { "cibleFinale": "22:15", "pasMin": 5, "seancesParPas": 4 }
+```
+
+Quatre nuits tenues et l'heure exigée recule de cinq minutes. De 23:00 à 22:15, il faut
+36 nuits. Personne ne se couche 45 minutes plus tôt du jour au lendemain ; par tranches
+de cinq minutes, le corps suit sans s'en apercevoir.
+Si tu réponds « trop tôt pour moi », l'heure repart de cinq minutes en arrière : le coach
+recule plutôt que de te faire échouer chaque soir.
+
+### Le journal
+
+Chaque séance validée laisse une entrée : date, routine, ressenti, changement de niveau,
+et ta note. Au début de la séance suivante, le coach te ressort la dernière note que tu
+avais laissée sur cette routine — c'est là que tu écris « genou droit sensible sur les
+fentes » pour ne pas l'oublier trois semaines plus tard.
+
+Les 400 dernières entrées sont conservées, en local uniquement.
+
+---
+
 ## Où vivent tes données
 
-Tout est stocké en local dans le navigateur ou l'application (`localStorage`), sous trois clés :
-`coach.historique`, `coach.reports`, `coach.reglages`. Rien ne sort de ta machine.
+Tout est stocké en local dans le navigateur ou l'application (`localStorage`), sous cinq clés :
+`coach.historique`, `coach.reports`, `coach.reglages`, `coach.progression`, `coach.journal`.
+Rien ne sort de ta machine.
 
 ---
 
@@ -118,7 +166,8 @@ Tout est stocké en local dans le navigateur ou l'application (`localStorage`), 
 electron/main.cjs        fenêtre, notifications système, prise d'écran au niveau 3
 electron/preload.cjs     pont sécurisé vers l'interface
 src/core/scheduler.js    le cerveau : décide de l'état de chaque routine
-src/core/storage.js      historique, séries, reports, réglages
+src/core/progression.js  niveaux, doses du jour, heure de coucher effective
+src/core/storage.js      historique, séries, reports, réglages, progression, journal
 src/core/sound.js        bips et alarmes générés (aucun fichier audio requis)
 src/core/music.js        couche musique, une source par type de playlist
 src/data/routines.json   ton programme

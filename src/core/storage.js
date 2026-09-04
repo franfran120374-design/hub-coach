@@ -6,6 +6,9 @@ import { clefJour, clefJourDecalee } from './temps.js'
 const CLE_HISTORIQUE = 'coach.historique'
 const CLE_REPORTS = 'coach.reports'
 const CLE_REGLAGES = 'coach.reglages'
+const CLE_PROGRESSION = 'coach.progression'
+const CLE_JOURNAL = 'coach.journal'
+const TAILLE_JOURNAL = 400
 
 const REGLAGES_DEFAUT = {
   sonActif: true,
@@ -140,8 +143,39 @@ export function ecrireReglages(partiel) {
   return fusion
 }
 
+// --- Progression : { "muscu": { niveau: 3, compteurJuste: 1, seancesDepuisPas: 2 } }
+
+export function lireProgression() {
+  return lire(CLE_PROGRESSION, {})
+}
+
+export function ecrireProgression(routineId, etat) {
+  const tout = lireProgression()
+  tout[routineId] = etat
+  ecrire(CLE_PROGRESSION, tout)
+  return etat
+}
+
+// --- Journal : la memoire du coach, du plus recent au plus ancien
+
+export function lireJournal(limite = 0) {
+  const journal = lire(CLE_JOURNAL, [])
+  return limite > 0 ? journal.slice(0, limite) : journal
+}
+
+export function ajouterAuJournal(entree) {
+  const journal = lireJournal()
+  journal.unshift({ horodatage: Date.now(), jour: clefJour(), ...entree })
+  ecrire(CLE_JOURNAL, journal.slice(0, TAILLE_JOURNAL))
+  return journal
+}
+
+export function journalDeRoutine(routineId, limite = 10) {
+  return lireJournal().filter((e) => e.routineId === routineId).slice(0, limite)
+}
+
 export function toutEffacer() {
-  ;[CLE_HISTORIQUE, CLE_REPORTS, CLE_REGLAGES].forEach((cle) => {
+  ;[CLE_HISTORIQUE, CLE_REPORTS, CLE_REGLAGES, CLE_PROGRESSION, CLE_JOURNAL].forEach((cle) => {
     try {
       localStorage.removeItem(cle)
     } catch {

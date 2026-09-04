@@ -1,13 +1,24 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import routinesParDefaut from './data/routines.json'
 import { evaluerToutes, routineLaPlusUrgente, prochaineRoutine } from './core/scheduler.js'
-import { enregistrerSeance, reportRoutine, lireReglages, ecrireReglages, nombreReports } from './core/storage.js'
+import {
+  enregistrerSeance,
+  reportRoutine,
+  lireReglages,
+  ecrireReglages,
+  nombreReports,
+  ajouterAuJournal
+} from './core/storage.js'
+import { appliquerBilan } from './core/progression.js'
 import { activerAudio, audioPret, demarrerBoucleAlerte, arreterBoucleAlerte } from './core/sound.js'
 import { arreter as arreterMusique, reglerVolume } from './core/music.js'
 import Journee from './components/Journee.jsx'
 import Seance from './components/Seance.jsx'
+import Bilan from './components/Bilan.jsx'
 import Blocage from './components/Blocage.jsx'
+import Progression from './components/Progression.jsx'
 import Suivi from './components/Suivi.jsx'
+import Journal from './components/Journal.jsx'
 
 const bureau = typeof window !== 'undefined' && window.coach && window.coach.bureau
 
@@ -15,6 +26,7 @@ export default function App() {
   const [maintenant, setMaintenant] = useState(() => new Date())
   const [version, setVersion] = useState(0)
   const [seanceId, setSeanceId] = useState(null)
+  const [bilanId, setBilanId] = useState(null)
   const [reglages, setReglages] = useState(() => lireReglages())
   const [sonPret, setSonPret] = useState(() => audioPret())
   const alertesEnvoyees = useRef({})
@@ -32,14 +44,16 @@ export default function App() {
     [routines, Math.floor(maintenant.getTime() / 5000), version]
   )
 
+  const enPleineSeance = Boolean(seanceId || bilanId)
   const urgente = routineLaPlusUrgente(evaluations)
   const suivante = prochaineRoutine(evaluations)
-  const niveau = seanceId ? 0 : urgente ? urgente.niveau : 0
+  const niveau = enPleineSeance ? 0 : urgente ? urgente.niveau : 0
   const routineEnCours = seanceId ? routines.find((r) => r.id === seanceId) : null
+  const routineDuBilan = bilanId ? routines.find((r) => r.id === bilanId) : null
 
   // Escalade : notification, son, prise de l'ecran.
   useEffect(() => {
-    if (!urgente || seanceId) {
+    if (!urgente || enPleineSeance) {
       arreterBoucleAlerte()
       if (bureau) window.coach.liberer()
       niveauPrecedent.current = 0
@@ -70,36 +84,47 @@ export default function App() {
       niveauPrecedent.current = urgente.niveau
       window.coach.escalader(urgente.niveau)
     }
-  }, [urgente, seanceId, reglages.sonActif, sonPret])
+  }, [urgente, enPleineSeance, reglages.sonActif, sonPret])
 
   useEffect(() => {
     reglerVolume(reglages.volume)
   }, [reglages.volume])
 
-  const demarrer = useCallback(
-    async (routineId) => {
-      if (!audioPret()) {
-        const ok = await activerAudio()
-        setSonPret(ok)
-      }
-      arreterBoucleAlerte()
-      if (bureau) window.coach.liberer()
-      setSeanceId(routineId)
-    },
-    []
-  )
+  const demarrer = useCallback(async (routineId) => {
+    if (!audioPret()) {
+      const ok = await activerAudio()
+      setSonPret(ok)
+    }
+    arreterBoucleAlerte()
+    if (bureau) window.coach.liberer()
+    setSeanceId(routineId)
+  }, [])
 
   const terminer = useCallback((routineId) => {
     enregistrerSeance(routineId, { reports: nombreReports(routineId) })
     arreterMusique()
     delete alertesEnvoyees.current[routineId]
     setSeanceId(null)
+    setBilanId(routineId)
     setVersion((v) => v + 1)
   }, [])
 
   const abandonner = useCallback(() => {
     arreterMusique()
     setSeanceId(null)
+    setVersion((v) => v + 1)
+  }, [])
+
+  const cloreBilan = useCallback((routine, ressenti, note) => {
+    const { etat, changement } = appliquerBilan(routine, ressenti)
+    ajouterAuJournal({
+      routineId: routine.id,
+      ressenti: ressenti || null,
+      note: note || '',
+      niveau: etat.niveau,
+      changement: changement ? changement.texte : null
+    })
+    setBilanId(null)
     setVersion((v) => v + 1)
   }, [])
 
@@ -130,6 +155,16 @@ export default function App() {
         reglages={reglages}
         onTerminer={() => terminer(routineEnCours.id)}
         onAbandonner={abandonner}
+      />
+    )
+  }
+
+  if (routineDuBilan) {
+    return (
+      <Bilan
+        routine={routineDuBilan}
+        onValider={(ressenti, note) => cloreBilan(routineDuBilan, ressenti, note)}
+        onPasser={() => cloreBilan(routineDuBilan, null, '')}
       />
     )
   }
@@ -179,12 +214,14 @@ export default function App() {
       </header>
 
       <main className="colonnes">
-        <Journee
-          evaluations={evaluations}
-          onDemarrer={demarrer}
-          onReporter={reporter}
-        />
-        <Suivi routines={routines} version={version} />
+        <div className="colonne-gauche">
+          <Journee evaluations={evaluations} onDemarrer={demarrer} onReporter={reporter} />
+          <Journal routines={routines} version={version} />
+        </div>
+        <div className="colonne-droite">
+          <Progression routines={routines} version={version} />
+          <Suivi routines={routines} version={version} />
+        </div>
       </main>
 
       {bureau && (

@@ -592,3 +592,255 @@ input {
     animation-duration: 0.01ms !important;
   }
 }
+
+/* ---------- Colonnes internes ---------- */
+
+.colonne-gauche,
+.colonne-droite {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  min-width: 0;
+}
+
+/* ---------- Progression ---------- */
+
+.progression-bloc {
+  background: var(--surface);
+  border: 1px solid var(--trait);
+  border-radius: var(--rayon);
+  padding: 18px 20px;
+  margin-bottom: 16px;
+}
+
+.progression-ligne {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.progression-ligne h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.progression-niveau {
+  font-size: 13px;
+  color: var(--texte-doux);
+  border: 1px solid var(--trait);
+  border-radius: 999px;
+  padding: 2px 10px;
+  white-space: nowrap;
+}
+
+.progression-valeur {
+  margin: 10px 0 4px;
+  font-size: 34px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  color: var(--action);
+}
+
+.progression-unite {
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--texte-doux);
+}
+
+.progression-doses {
+  list-style: none;
+  margin: 12px 0 10px;
+  padding: 0;
+}
+
+.progression-doses li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--trait);
+  font-size: 14px;
+  color: var(--texte-doux);
+}
+
+.progression-doses li:last-child {
+  border-bottom: none;
+}
+
+.progression-doses strong {
+  color: var(--action);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.progression-legende {
+  margin: 0;
+  font-size: 14px;
+  color: var(--texte-doux);
+}
+
+/* ---------- Journal ---------- */
+
+.journal-liste {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-width: var(--colonne);
+}
+
+.journal-liste li {
+  border-left: 2px solid var(--trait);
+  padding: 0 0 18px 18px;
+}
+
+.journal-entete {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.journal-routine {
+  font-weight: 600;
+}
+
+.journal-date {
+  font-size: 13px;
+  color: var(--texte-doux);
+  font-variant-numeric: tabular-nums;
+}
+
+.journal-ressenti {
+  margin: 2px 0 0;
+  font-size: 14px;
+  color: var(--texte-doux);
+}
+
+.journal-note {
+  margin: 6px 0 0;
+  color: var(--texte);
+  font-size: 15px;
+}
+
+/* ---------- Bilan de fin de seance ---------- */
+
+.bilan {
+  min-height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 40px 24px;
+  background: radial-gradient(120% 70% at 50% 0%, #233a45 0%, var(--fond) 62%);
+}
+
+.bilan-contenu {
+  width: 100%;
+  max-width: 46ch;
+}
+
+.bilan-surtitre {
+  margin: 0;
+  color: var(--calme);
+  font-weight: 600;
+}
+
+.bilan-titre {
+  margin: 8px 0 28px;
+  font-size: clamp(30px, 5vw, 44px);
+  letter-spacing: -0.02em;
+}
+
+.bilan-choix {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bilan-option {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--trait);
+  border-radius: var(--rayon);
+  padding: 14px 18px;
+  color: var(--texte);
+  cursor: pointer;
+  transition: border-color 160ms ease, background 160ms ease;
+}
+
+.bilan-option:hover {
+  border-color: var(--texte-doux);
+}
+
+.bilan-option.choisie {
+  border-color: var(--calme);
+  background: var(--surface-claire);
+}
+
+.bilan-option-libelle {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.bilan-option-detail {
+  font-size: 14px;
+  color: var(--texte-doux);
+}
+
+.bilan-note {
+  display: block;
+  margin: 24px 0 0;
+  font-size: 14px;
+  color: var(--texte-doux);
+}
+
+.bilan-note textarea {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid var(--trait);
+  border-radius: var(--rayon);
+  color: var(--texte);
+  font-size: 15px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.bilan-rappel {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  border-left: 2px solid var(--calme);
+  background: rgba(127, 209, 185, 0.08);
+  font-size: 14px;
+  color: var(--texte-doux);
+}
+
+.bilan-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding-top: 26px;
+}
+
+/* ---------- Dose affichee pendant la seance ---------- */
+
+.minuteur-dose {
+  margin: 6px 0 0;
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--calme);
+  font-variant-numeric: tabular-nums;
+}
+
+.minuteur-plafond {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--texte-doux);
+}

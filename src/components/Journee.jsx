@@ -27,7 +27,7 @@ export default function Journee({ evaluations, onDemarrer, onReporter }) {
           const duree = dureeTotale(routine)
           return (
             <li key={routine.id} className={`fil-etape etat-${etat} niveau-${niveau}`}>
-              <div className="fil-heure">{routine.heure}</div>
+              <div className="fil-heure">{evaluation.heure}</div>
               <div className="fil-corps">
                 <div className="fil-ligne">
                   <h3>{routine.nom}</h3>
