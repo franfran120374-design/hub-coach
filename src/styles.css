@@ -901,3 +901,132 @@ input {
   font-size: 13px;
   color: var(--texte-doux);
 }
+
+/* ---------- Synchronisation et installation ---------- */
+
+.synchro {
+  background: var(--surface);
+  border: 1px solid var(--trait);
+  border-radius: var(--rayon);
+  overflow: hidden;
+}
+
+.synchro-bascule {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 18px;
+  background: transparent;
+  border: none;
+  color: var(--texte);
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.synchro-etat {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--texte-doux);
+  white-space: nowrap;
+}
+
+.synchro-panneau {
+  padding: 4px 18px 18px;
+}
+
+.synchro-bloc {
+  padding: 16px 0;
+  border-top: 1px solid var(--trait);
+}
+
+.synchro-titre {
+  margin: 0 0 4px;
+  font-weight: 600;
+}
+
+.synchro-texte {
+  margin: 0 0 12px;
+  font-size: 14px;
+  color: var(--texte-doux);
+}
+
+.synchro-champ {
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  background: var(--fond);
+  border: 1px solid var(--trait);
+  border-radius: 8px;
+  color: var(--texte);
+  font-size: 14px;
+}
+
+.synchro-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.synchro-liaison {
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: var(--fond);
+  border: 1px solid var(--trait);
+  border-radius: 8px;
+  color: var(--texte-doux);
+  font-size: 12px;
+  word-break: break-all;
+  resize: vertical;
+}
+
+.synchro-message {
+  margin: 14px 0 0;
+  padding: 10px 14px;
+  border-left: 2px solid var(--calme);
+  background: rgba(127, 209, 185, 0.08);
+  font-size: 14px;
+}
+
+.synchro-message.erreur {
+  border-left-color: var(--alerte);
+  background: rgba(242, 105, 90, 0.1);
+}
+
+/* ---------- Adaptation telephone ---------- */
+
+@media (max-width: 620px) {
+  .app {
+    padding: 24px 18px 28px;
+  }
+
+  .entete {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .colonnes {
+    gap: 32px;
+  }
+
+  .seance {
+    padding: 24px 18px 32px;
+  }
+
+  .seance-pied {
+    flex-wrap: wrap;
+  }
+
+  .minuteur-chiffres {
+    font-size: 22vw;
+  }
+
+  .bouton-large {
+    padding: 14px 24px;
+  }
+}

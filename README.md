@@ -191,6 +191,65 @@ lesquels sont secondaires.
 
 ---
 
+## Sur le téléphone, et synchronisé
+
+### Installer l'application
+
+L'application publiée sur GitHub Pages s'installe sur l'écran d'accueil et fonctionne
+ensuite sans connexion, en plein écran, sans barre de navigateur.
+
+- **Android** : ouvre le site dans Chrome, puis le panneau « Appareils et synchronisation »
+  propose un bouton *Installer*. Chrome affiche aussi sa propre bannière.
+- **iPhone** : Safari ne propose pas d'installation automatique. Bouton Partager, puis
+  « Sur l'écran d'accueil ».
+- **Ordinateur** : Chrome et Edge affichent une icône d'installation dans la barre d'adresse.
+
+### Brancher la synchronisation
+
+La synchronisation demande un serveur. J'ai choisi Supabase : gratuit, rien à maintenir,
+et l'application l'appelle en REST sans bibliothèque supplémentaire.
+
+**Une seule fois, sur supabase.com :**
+
+1. Ouvre un projet. **Un projet existant convient** : le script crée sa propre table
+   `coach_etat` et ses deux fonctions, il n'écrase rien et ne touche à rien d'autre.
+   Inutile d'en créer un dédié, surtout si tu as atteint la limite de projets gratuits.
+2. Onglet *SQL Editor*, colle tout le contenu de `supabase/installation.sql`, clique sur *Run*.
+3. Onglet *Project Settings → API Keys* : copie l'**URL du projet** et la clé publique.
+   Selon l'âge du projet elle s'appelle **publishable** (`sb_publishable_…`) ou **anon**
+   dans l'onglet *Legacy API Keys*. Les deux fonctionnent : Supabase remplace
+   progressivement la seconde par la première, avec les mêmes privilèges.
+
+**Sur ton premier appareil :** panneau « Appareils et synchronisation », section
+*Premier appareil*, colle l'URL et la clé, clique sur *Brancher*. Un code de
+32 caractères est généré : c'est lui qui protège tes données.
+
+**Sur le deuxième :** sur le premier appareil, clique sur *Copier la clé de liaison*.
+Envoie-la-toi par message ou par mail, puis colle-la dans la section *Deuxième appareil*.
+Un seul copier-coller, rien d'autre à saisir.
+
+### Ce que la synchronisation garantit
+
+Elle tourne à l'ouverture, au retour sur l'application, après chaque séance validée,
+et toutes les cinq minutes.
+
+La fusion ne perd jamais une séance : les historiques et les journaux des deux appareils
+sont réunis, jamais écrasés. Seuls la progression, les ajustements et les réglages
+tranchent au plus récent — ce sont des réglages, pas des faits.
+
+Concrètement : si tu valides le coucher sur le téléphone pendant que l'ordinateur est
+éteint, la séance est là au réveil de l'ordinateur. Et inversement.
+
+### Sécurité
+
+La clé publique de Supabase est publique par conception, mais elle ne donne accès à rien :
+le script SQL verrouille la table et n'expose que deux fonctions, qui exigent ton code de
+32 caractères. Sans ce code, il n'y a rien à lire.
+Ne mets ni l'URL, ni la clé, ni le code dans le dépôt : tout est saisi dans l'application
+et reste sur tes appareils.
+
+---
+
 ## Où vivent tes données
 
 Tout est stocké en local dans le navigateur ou l'application (`localStorage`), sous sept clés :
@@ -208,6 +267,10 @@ src/core/scheduler.js    le cerveau : décide de l'état de chaque routine
 src/core/progression.js  niveaux, doses du jour, heure de coucher effective
 src/core/ajustements.js  décalages, jours retirés, semaines allégées
 src/core/signaux.js      détection de motifs et propositions d'adaptation
+src/core/sync.js         synchronisation entre appareils, fusion sans perte
+src/core/pwa.js          installation sur l'écran d'accueil, hors connexion
+public/sw.js             service worker : réseau d'abord, cache en secours
+supabase/installation.sql  à coller une fois dans ton projet Supabase
 src/core/storage.js      historique, séries, reports, réglages, progression, journal
 src/core/sound.js        bips et alarmes générés (aucun fichier audio requis)
 src/core/music.js        couche musique, une source par type de playlist

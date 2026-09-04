@@ -12,8 +12,11 @@ import {
 } from './core/storage.js'
 import { appliquerBilan } from './core/progression.js'
 import { appliquerAjustement } from './core/ajustements.js'
+import { synchroniser, syncConfiguree } from './core/sync.js'
+import { initPwa } from './core/pwa.js'
 import { activerAudio, audioPret, demarrerBoucleAlerte, arreterBoucleAlerte } from './core/sound.js'
 import { arreter as arreterMusique, reglerVolume } from './core/music.js'
+import Synchro from './components/Synchro.jsx'
 import Signaux from './components/Signaux.jsx'
 import Journee from './components/Journee.jsx'
 import Seance from './components/Seance.jsx'
@@ -38,6 +41,23 @@ export default function App() {
   useEffect(() => {
     const battement = setInterval(() => setMaintenant(new Date()), 1000)
     return () => clearInterval(battement)
+  }, [])
+
+  // Synchronisation : a l'ouverture, puis toutes les cinq minutes.
+  useEffect(() => {
+    initPwa()
+    if (!syncConfiguree()) return undefined
+    const lancer = () => synchroniser().then((r) => r.ok && setVersion((v) => v + 1))
+    lancer()
+    const battement = setInterval(lancer, 5 * 60 * 1000)
+    const auRetour = () => {
+      if (document.visibilityState === 'visible') lancer()
+    }
+    document.addEventListener('visibilitychange', auRetour)
+    return () => {
+      clearInterval(battement)
+      document.removeEventListener('visibilitychange', auRetour)
+    }
   }, [])
 
   const routines = routinesParDefaut
@@ -129,6 +149,7 @@ export default function App() {
     })
     setBilanId(null)
     setVersion((v) => v + 1)
+    if (syncConfiguree()) synchroniser()
   }, [])
 
   const reporter = useCallback((routineId, minutes) => {
@@ -244,6 +265,7 @@ export default function App() {
           <Journal routines={routines} version={version} />
         </div>
         <div className="colonne-droite">
+          <Synchro onSynchronise={() => setVersion((v) => v + 1)} />
           <Progression routines={routines} version={version} />
           <Suivi routines={routines} version={version} />
         </div>

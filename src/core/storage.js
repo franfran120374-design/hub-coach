@@ -207,6 +207,32 @@ export function signalIgnore(cle) {
   return Boolean(tout[cle] && tout[cle] > Date.now())
 }
 
+// --- Export / import complet, utilise par la synchronisation
+
+export function exporterTout() {
+  return {
+    version: 1,
+    maj: Date.now(),
+    historique: lire(CLE_HISTORIQUE, {}),
+    journal: lire(CLE_JOURNAL, []),
+    progression: lire(CLE_PROGRESSION, {}),
+    ajustements: lire(CLE_AJUSTEMENTS, {}),
+    reglages: lire(CLE_REGLAGES, {}),
+    signauxIgnores: lire(CLE_SIGNAUX_IGNORES, {})
+  }
+}
+
+export function importerTout(blob) {
+  if (!blob || typeof blob !== 'object') return false
+  if (blob.historique) ecrire(CLE_HISTORIQUE, blob.historique)
+  if (blob.journal) ecrire(CLE_JOURNAL, blob.journal)
+  if (blob.progression) ecrire(CLE_PROGRESSION, blob.progression)
+  if (blob.ajustements) ecrire(CLE_AJUSTEMENTS, blob.ajustements)
+  if (blob.reglages) ecrire(CLE_REGLAGES, blob.reglages)
+  if (blob.signauxIgnores) ecrire(CLE_SIGNAUX_IGNORES, blob.signauxIgnores)
+  return true
+}
+
 export function toutEffacer() {
   ;[
     CLE_HISTORIQUE,
